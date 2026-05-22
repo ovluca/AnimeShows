@@ -12,11 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.qdroid.anime.ui.theme.AnimeShowsTheme
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        startKoin {
+            androidContext(this@MainActivity)
+            androidLogger()
+        }
+
         enableEdgeToEdge()
+
         setContent {
             AnimeShowsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
