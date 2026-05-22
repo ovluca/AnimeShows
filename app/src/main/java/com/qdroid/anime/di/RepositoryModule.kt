@@ -5,5 +5,5 @@ import com.qdroid.anime.domain.repository.AnimeRepository
 import org.koin.dsl.module
 
 fun repositoryModule() = module {
-    single<AnimeRepository> { AnimeRepositoryImpl(get(), get()) }
+    single<AnimeRepository> { AnimeRepositoryImpl(get()) }
 }

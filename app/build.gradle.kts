@@ -50,8 +50,11 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.koin.android)
+    implementation(libs.koin.android.compose)
     implementation(libs.appollo.graphql.runtime)
     implementation(libs.squareup.okhttp3.logging)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

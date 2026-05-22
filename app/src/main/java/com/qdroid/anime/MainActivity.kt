@@ -4,16 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.qdroid.anime.di.appModule
 import com.qdroid.anime.di.repositoryModule
+import com.qdroid.anime.di.useCaseModule
+import com.qdroid.anime.di.viewModelModule
 import com.qdroid.anime.presentation.theme.AnimeShowsTheme
+import com.qdroid.anime.ui.HomeScreen
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -24,36 +20,15 @@ class MainActivity : ComponentActivity() {
         startKoin {
             androidContext(this@MainActivity)
             androidLogger()
-            modules(appModule(), repositoryModule())
+            modules(appModule(), repositoryModule(), viewModelModule(), useCaseModule())
         }
 
         enableEdgeToEdge()
 
         setContent {
             AnimeShowsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                HomeScreen()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AnimeShowsTheme {
-        Greeting("Android")
     }
 }

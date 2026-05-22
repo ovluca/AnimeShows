@@ -11,6 +11,7 @@ composeBom = "2026.05.01"
 koinVersion = "4.2.1"
 graphqlVersion = "5.0.0"
 loggingInterceptorVersion = "5.3.2"
+coilVersion = "3.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -29,8 +30,11 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koinVersion" }
+koin-android-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koinVersion" }
 appollo-graphql-runtime = { group = "com.apollographql.apollo", name = "apollo-runtime", version.ref = "graphqlVersion" }
 squareup-okhttp3-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptorVersion" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coilVersion" }
+coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coilVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
