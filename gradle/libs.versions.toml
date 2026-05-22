@@ -10,6 +10,7 @@ kotlin = "2.3.21"
 composeBom = "2026.05.01"
 koinVersion = "4.2.1"
 graphqlVersion = "5.0.0"
+loggingInterceptorVersion = "5.3.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -29,6 +30,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koinVersion" }
 appollo-graphql-runtime = { group = "com.apollographql.apollo", name = "apollo-runtime", version.ref = "graphqlVersion" }
+squareup-okhttp3-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptorVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
