@@ -1,4 +1,4 @@
-package com.qdroid.anime.ui.theme
+package com.qdroid.anime.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.qdroid.anime.ui.theme.AnimeShowsTheme
+import com.qdroid.anime.di.appModule
+import com.qdroid.anime.di.repositoryModule
+import com.qdroid.anime.presentation.theme.AnimeShowsTheme
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -22,6 +24,7 @@ class MainActivity : ComponentActivity() {
         startKoin {
             androidContext(this@MainActivity)
             androidLogger()
+            modules(appModule(), repositoryModule())
         }
 
         enableEdgeToEdge()

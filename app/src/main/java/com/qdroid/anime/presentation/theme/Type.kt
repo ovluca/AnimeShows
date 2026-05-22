@@ -1,4 +1,4 @@
-package com.qdroid.anime.ui.theme
+package com.qdroid.anime.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
