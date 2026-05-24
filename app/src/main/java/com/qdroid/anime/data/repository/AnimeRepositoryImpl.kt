@@ -5,17 +5,32 @@ import com.qdroid.anime.PopularNowQuery
 import com.qdroid.anime.TrendingNowQuery
 import com.qdroid.anime.domain.model.AnimeMovie
 import com.qdroid.anime.domain.model.AnimeRequestType
+import com.qdroid.anime.domain.model.PaginatedMovies
 import com.qdroid.anime.domain.repository.AnimeRepository
 
-class AnimeRepositoryImpl(val client: ApolloClient) :
-    AnimeRepository {
+private const val PER_PAGE = 20
 
-    override suspend fun getAnimeShows(requestType: AnimeRequestType): Result<List<AnimeMovie>> {
+class AnimeRepositoryImpl(private val client: ApolloClient) : AnimeRepository {
+
+    override suspend fun getAnimeShows(
+        requestType: AnimeRequestType,
+        page: Int
+    ): Result<PaginatedMovies> {
         val response = when (requestType) {
-            AnimeRequestType.Trending -> client.query(TrendingNowQuery(page = 1, perPage = 10))
+            AnimeRequestType.Trending -> client.query(
+                TrendingNowQuery(
+                    page = page,
+                    perPage = PER_PAGE
+                )
+            )
                 .execute()
 
-            AnimeRequestType.Popularity -> client.query(PopularNowQuery(page = 1, perPage = 10))
+            AnimeRequestType.Popularity -> client.query(
+                PopularNowQuery(
+                    page = page,
+                    perPage = PER_PAGE
+                )
+            )
                 .execute()
         }
 
@@ -24,12 +39,22 @@ class AnimeRepositoryImpl(val client: ApolloClient) :
         }
 
         val animeMovies = when (val data = response.data) {
-            is TrendingNowQuery.Data -> data.Page?.media?.mapNotNull { it?.toAnimeMovie() }
-            is PopularNowQuery.Data -> data.Page?.media?.mapNotNull { it?.toAnimeMovie() }
-            else -> null
+            is TrendingNowQuery.Data -> PaginatedMovies(
+                currentPage = data.Page?.pageInfo?.currentPage ?: 1,
+                hasNextPage = data.Page?.pageInfo?.hasNextPage ?: false,
+                movies = data.Page?.media?.mapNotNull { it?.toAnimeMovie() }.orEmpty()
+            )
+
+            is PopularNowQuery.Data -> PaginatedMovies(
+                currentPage = data.Page?.pageInfo?.currentPage ?: 1,
+                hasNextPage = data.Page?.pageInfo?.hasNextPage ?: false,
+                movies = data.Page?.media?.mapNotNull { it?.toAnimeMovie() }.orEmpty()
+            )
+
+            else -> PaginatedMovies()
         }
 
-        return Result.success(animeMovies ?: emptyList())
+        return Result.success(animeMovies)
     }
 
     private fun TrendingNowQuery.Medium.toAnimeMovie() = AnimeMovie(

@@ -10,29 +10,84 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    val trendingNowUseCase: TrendingNowUseCase,
-    val popularNowUseCase: PopularNowUseCase
+    private val trendingNowUseCase: TrendingNowUseCase,
+    private val popularNowUseCase: PopularNowUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
+        loadTrendingMovies()
+        loadPopularMovies()
+    }
 
+    private fun loadTrendingMovies(page: Int = 1) {
+        _uiState.update { it.copy(trendingNow = it.trendingNow.copy(isLoading = true)) }
         viewModelScope.launch {
-            trendingNowUseCase().onSuccess { movies ->
-                _uiState.update { it.copy(trendingMovies = movies) }
+            trendingNowUseCase(page = page).onSuccess { newData ->
+                _uiState.update {
+                    it.copy(
+                        trendingNow = it.trendingNow.copy(
+                            currentPage = newData.currentPage,
+                            hasNextPage = newData.hasNextPage,
+                            trendingMovies = it.trendingNow.trendingMovies + newData.movies,
+                            isLoading = false
+                        )
+                    )
+                }
             }.onFailure { error ->
-                _uiState.update { it.copy(error = error.message) }
+                _uiState.update {
+                    it.copy(
+                        errorMsg = error.message,
+                        trendingNow = it.trendingNow.copy(isLoading = false)
+                    )
+                }
             }
         }
+    }
 
+    private fun loadPopularMovies(page: Int = 1) {
+        _uiState.update { it.copy(popularNow = it.popularNow.copy(isLoading = true)) }
         viewModelScope.launch {
-            popularNowUseCase().onSuccess { movies ->
-                _uiState.update { it.copy(popularMovies = movies) }
+            popularNowUseCase(page = page).onSuccess { newData ->
+                _uiState.update {
+                    it.copy(
+                        popularNow = it.popularNow.copy(
+                            popularMovies = it.popularNow.popularMovies + newData.movies,
+                            isLoading = false,
+                            currentPage = newData.currentPage,
+                            hasNextPage = newData.hasNextPage
+                        )
+                    )
+                }
             }.onFailure { error ->
-                _uiState.update { it.copy(error = error.message) }
+                _uiState.update {
+                    it.copy(
+                        errorMsg = error.message,
+                        popularNow = it.popularNow.copy(isLoading = false)
+                    )
+                }
             }
+        }
+    }
+
+    private fun loadNextTrendingPage() {
+        val state = _uiState.value.trendingNow
+        if (!state.hasNextPage || state.isLoading) return
+        loadTrendingMovies(page = state.currentPage + 1)
+    }
+
+    private fun loadNextPopularPage() {
+        val state = _uiState.value.popularNow
+        if (!state.hasNextPage || state.isLoading) return
+        loadPopularMovies(page = state.currentPage + 1)
+    }
+
+    fun onIntent(intent: HomeScreenIntent) {
+        when (intent) {
+            is HomeScreenIntent.LoadMoreTrending -> loadNextTrendingPage()
+            is HomeScreenIntent.LoadMorePopular -> loadNextPopularPage()
         }
     }
 }
