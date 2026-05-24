@@ -16,27 +16,31 @@ class AnimeRepositoryImpl(private val client: ApolloClient) : AnimeRepository {
         requestType: AnimeRequestType,
         page: Int
     ): Result<PaginatedMovies> {
-        val response = when (requestType) {
-            AnimeRequestType.Trending -> client.query(
-                TrendingNowQuery(
-                    page = page,
-                    perPage = PER_PAGE
-                )
-            )
-                .execute()
 
-            AnimeRequestType.Popularity -> client.query(
-                PopularNowQuery(
-                    page = page,
-                    perPage = PER_PAGE
-                )
-            )
-                .execute()
+        val response = try {
+            when (requestType) {
+                AnimeRequestType.Trending -> client.query(
+                    TrendingNowQuery(
+                        page = page,
+                        perPage = PER_PAGE
+                    )
+                ).execute()
+
+                AnimeRequestType.Popularity -> client.query(
+                    PopularNowQuery(
+                        page = page,
+                        perPage = PER_PAGE
+                    )
+                ).execute()
+            }
+        } catch (e: Exception) {
+            return Result.failure(e)
         }
 
-        if (response.hasErrors()) {
-            return Result.failure(Exception(response.errors?.first()?.message))
-        }
+        response.exception?.let { return Result.failure(it) }
+
+        val data = response.data
+        val errors = response.errors
 
         val animeMovies = when (val data = response.data) {
             is TrendingNowQuery.Data -> PaginatedMovies(
@@ -54,7 +58,13 @@ class AnimeRepositoryImpl(private val client: ApolloClient) : AnimeRepository {
             else -> PaginatedMovies()
         }
 
-        return Result.success(animeMovies)
+        return when {
+            data != null && errors?.isEmpty() == true -> Result.success(animeMovies)
+            data != null && errors?.isNotEmpty() == true -> Result.success(animeMovies)
+            errors?.isNotEmpty() == true -> Result.failure(Exception(errors.joinToString(separator = "\n") { it.message }))
+            else -> Result.failure(Exception("Unknown error: no data/errors"))
+        }
+
     }
 
     private fun TrendingNowQuery.Medium.toAnimeMovie() = AnimeMovie(

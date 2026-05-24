@@ -5,7 +5,6 @@ import com.qdroid.anime.domain.model.AnimeMovie
 data class HomeUiState(
     val trendingNow: TrendingNowUiState = TrendingNowUiState(),
     val popularNow: PopularNowUiState = PopularNowUiState(),
-    val errorMsg: String? = null
 )
 
 data class TrendingNowUiState(

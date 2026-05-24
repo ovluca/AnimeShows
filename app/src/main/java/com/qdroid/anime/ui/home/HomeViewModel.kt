@@ -1,10 +1,13 @@
 package com.qdroid.anime.ui.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qdroid.anime.domain.usecase.PopularNowUseCase
 import com.qdroid.anime.domain.usecase.TrendingNowUseCase
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -16,6 +19,9 @@ class HomeViewModel(
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _events = MutableSharedFlow<HomeEvents>()
+    val eventsFlow = _events.asSharedFlow()
 
     init {
         loadTrendingMovies()
@@ -38,11 +44,9 @@ class HomeViewModel(
                 }
             }.onFailure { error ->
                 _uiState.update {
-                    it.copy(
-                        errorMsg = error.message,
-                        trendingNow = it.trendingNow.copy(isLoading = false)
-                    )
+                    it.copy(trendingNow = it.trendingNow.copy(isLoading = false))
                 }
+                _events.emit(HomeEvents.OnError(error.message ?: "Unknown error"))
             }
         }
     }
@@ -63,11 +67,9 @@ class HomeViewModel(
                 }
             }.onFailure { error ->
                 _uiState.update {
-                    it.copy(
-                        errorMsg = error.message,
-                        popularNow = it.popularNow.copy(isLoading = false)
-                    )
+                    it.copy(popularNow = it.popularNow.copy(isLoading = false))
                 }
+                _events.emit(HomeEvents.OnError(error.message ?: "Unknown error"))
             }
         }
     }

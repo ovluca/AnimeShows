@@ -12,13 +12,21 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.qdroid.anime.R
 import com.qdroid.anime.domain.model.AnimeMovie
 import com.qdroid.anime.ui.utils.CategoryHeader
@@ -32,10 +40,35 @@ import org.koin.androidx.compose.koinViewModel
 fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(viewModel.eventsFlow, lifecycleOwner) {
+        viewModel.eventsFlow
+            .flowWithLifecycle(
+                lifecycle = lifecycleOwner.lifecycle,
+                minActiveState = Lifecycle.State.STARTED
+            )
+            .collect { event ->
+                // 1. Check the type of event
+                when (event) {
+                    is HomeEvents.OnError -> {
+                        // 2. Retrieve the message from the event object
+                        snackbarHostState.showSnackbar(
+                            message = event.errorMsg, // Use the dynamic message here
+                            duration = SnackbarDuration.Long
+                        )
+                    }
+                }
+            }
+    }
 
     Scaffold(
         topBar = {
             HomeTopBar()
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { contentPadding ->
         Box(
@@ -94,7 +127,7 @@ private fun HomeScreenContent(
                 val movie = state.popularNow.popularMovies[it]
                 AnimeMovieItem(movie)
             }
-            
+
             item {
                 if (state.popularNow.isLoading) {
                     Box(
