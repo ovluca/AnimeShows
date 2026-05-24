@@ -6,12 +6,12 @@ import com.qdroid.anime.domain.repository.AnimeRepository
 import com.qdroid.anime.utility.DispatcherProvider
 import kotlinx.coroutines.withContext
 
-class TrendingNowUseCase(
+class PopularNowUseCase(
     val repository: AnimeRepository,
     val dispatcherProvider: DispatcherProvider
 ) {
 
     suspend operator fun invoke(): Result<List<AnimeMovie>> = withContext(dispatcherProvider.io) {
-        return@withContext repository.getAnimeShows(AnimeRequestType.Trending)
+        return@withContext repository.getAnimeShows(AnimeRequestType.Popularity)
     }
 }

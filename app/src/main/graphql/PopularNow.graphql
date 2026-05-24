@@ -1,4 +1,4 @@
-query TrendingNow(
+query PopularNow(
     $page: Int!,
     $perPage: Int!){
     Page(page: $page, perPage: $perPage){
@@ -7,7 +7,7 @@ query TrendingNow(
             hasNextPage
             total
         }
-        media(sort: TRENDING_DESC){
+        media(season: SPRING, seasonYear: 2026){
             id
             coverImage {
                 large
@@ -17,6 +17,8 @@ query TrendingNow(
                 romaji
             }
             averageScore
+            genres
+            duration
         }
     }
 }

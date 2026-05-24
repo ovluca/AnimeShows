@@ -13,40 +13,28 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.qdroid.anime.R
-import com.qdroid.anime.presentation.theme.gray
 
 @Composable
-fun ScoreComposable(score: Int) {
-    val iconRes = when {
-        score <= 60 -> {
-            R.drawable.ic_sad
-        }
-
-        score in 61..75 -> {
-            R.drawable.ic_neutral
-        }
-
-        else -> {
-            R.drawable.ic_satisfied
-        }
-    }
-
+fun DurationComposable(duration: Int) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xxsmall))
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xxsmall)),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             modifier = Modifier.size(dimensionResource(R.dimen.icon_size)),
-            painter = painterResource(iconRes),
-            contentDescription = "",
-            tint = Color.Unspecified
+            painter = painterResource(R.drawable.ic_time),
+            contentDescription = ""
         )
-        Text(text = "$score%", style = scoreTextStyle(), color = gray)
+        Text(
+            text = "${duration}m",
+            style = timeTextStyle(),
+            color = Color.Black
+        )
     }
 }
 
 @Composable
 @Preview
 private fun Preview() {
-    ScoreComposable(90)
+    DurationComposable(120)
 }

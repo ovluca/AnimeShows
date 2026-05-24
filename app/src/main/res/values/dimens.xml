@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="cover_image_width">143dp</dimen>
-    <dimen name="cover_image_height">213dp</dimen>
+    <dimen name="cover_image_width">190dp</dimen>
+    <dimen name="cover_image_height">284dp</dimen>
+    <dimen name="cover_image_width_small">113dp</dimen>
+    <dimen name="cover_image_height_small">170dp</dimen>
     <dimen name="corner_radius_medium">16dp</dimen>
-    <dimen name="padding_medium">16dp</dimen>
-    <dimen name="padding_small">12dp</dimen>
-    <dimen name="padding_xsmall">8dp</dimen>
-    <dimen name="padding_xxsmall">4dp</dimen>
+    <dimen name="corner_radius_small">10dp</dimen>
+    <dimen name="padding_medium">21dp</dimen>
+    <dimen name="padding_small">16dp</dimen>
+    <dimen name="padding_xsmall">10dp</dimen>
+    <dimen name="padding_xxsmall">5dp</dimen>
+    <dimen name="icon_size">16dp</dimen>
 </resources>
