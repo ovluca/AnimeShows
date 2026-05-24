@@ -39,8 +39,10 @@ class AnimeRepositoryImpl(private val client: ApolloClient) : AnimeRepository {
 
         response.exception?.let { return Result.failure(it) }
 
-        val data = response.data
         val errors = response.errors
+        if (errors?.isNotEmpty() == true) {
+            return Result.failure(Exception(errors.joinToString(separator = "\n") { it.message }))
+        }
 
         val animeMovies = when (val data = response.data) {
             is TrendingNowQuery.Data -> PaginatedMovies(
@@ -57,14 +59,7 @@ class AnimeRepositoryImpl(private val client: ApolloClient) : AnimeRepository {
 
             else -> PaginatedMovies()
         }
-
-        return when {
-            data != null && errors?.isEmpty() == true -> Result.success(animeMovies)
-            data != null && errors?.isNotEmpty() == true -> Result.success(animeMovies)
-            errors?.isNotEmpty() == true -> Result.failure(Exception(errors.joinToString(separator = "\n") { it.message }))
-            else -> Result.failure(Exception("Unknown error: no data/errors"))
-        }
-
+        return Result.success(animeMovies)
     }
 
     private fun TrendingNowQuery.Medium.toAnimeMovie() = AnimeMovie(
