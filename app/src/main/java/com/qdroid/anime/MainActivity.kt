@@ -9,7 +9,7 @@ import com.qdroid.anime.di.repositoryModule
 import com.qdroid.anime.di.useCaseModule
 import com.qdroid.anime.di.viewModelModule
 import com.qdroid.anime.presentation.theme.AnimeShowsTheme
-import com.qdroid.anime.ui.home.HomeScreen
+import com.qdroid.anime.ui.navigation.MainNavigation
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AnimeShowsTheme {
-                HomeScreen()
+                MainNavigation()
             }
         }
     }

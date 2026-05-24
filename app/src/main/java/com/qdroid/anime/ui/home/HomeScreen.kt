@@ -37,7 +37,10 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
+fun HomeScreen(
+    viewModel: HomeViewModel = koinViewModel(),
+    onNavigateToDetails: (Int) -> Unit = {}
+) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -50,12 +53,10 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
                 minActiveState = Lifecycle.State.STARTED
             )
             .collect { event ->
-                // 1. Check the type of event
                 when (event) {
                     is HomeEvents.OnError -> {
-                        // 2. Retrieve the message from the event object
                         snackbarHostState.showSnackbar(
-                            message = event.errorMsg, // Use the dynamic message here
+                            message = event.errorMsg,
                             duration = SnackbarDuration.Long
                         )
                     }
@@ -81,7 +82,8 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
                 paddingValues = contentPadding,
                 onLoadMore = { intent ->
                     viewModel.onIntent(intent = intent)
-                })
+                }, onNavigateToDetails = onNavigateToDetails
+            )
         }
     }
 }
@@ -90,7 +92,8 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
 private fun HomeScreenContent(
     state: HomeUiState,
     paddingValues: PaddingValues = PaddingValues(),
-    onLoadMore: (HomeScreenIntent) -> Unit = {}
+    onLoadMore: (HomeScreenIntent) -> Unit = {},
+    onNavigateToDetails: (Int) -> Unit = {}
 ) {
 
     val lazyListState = rememberLazyListState()
@@ -110,8 +113,9 @@ private fun HomeScreenContent(
         ) {
             item {
                 TrendingWidget(
-                    state.trendingNow,
-                    onLoadMore = { onLoadMore(HomeScreenIntent.LoadMoreTrending) }
+                    state = state.trendingNow,
+                    onLoadMore = { onLoadMore(HomeScreenIntent.LoadMoreTrending) },
+                    onNavigateToDetails = onNavigateToDetails
                 )
             }
 
@@ -125,7 +129,7 @@ private fun HomeScreenContent(
                 count = state.popularNow.popularMovies.size,
                 key = { state.popularNow.popularMovies[it].id }) {
                 val movie = state.popularNow.popularMovies[it]
-                AnimeMovieItem(movie)
+                AnimeMovieItem(movie = movie, onClick = { onNavigateToDetails(movie.id) })
             }
 
             item {

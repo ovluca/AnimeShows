@@ -1,5 +1,6 @@
 package com.qdroid.anime.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,9 +25,10 @@ import com.qdroid.anime.ui.utils.ScoreComposable
 import com.qdroid.anime.ui.utils.titleTextStyle
 
 @Composable
-fun AnimeMovieItem(movie: AnimeMovie) {
+fun AnimeMovieItem(movie: AnimeMovie, onClick: (AnimeMovie) -> Unit = {}) {
     Row(
         modifier = Modifier
+            .clickable { onClick(movie) }
             .fillMaxWidth()
             .padding(horizontal = dimensionResource(R.dimen.padding_medium)),
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))

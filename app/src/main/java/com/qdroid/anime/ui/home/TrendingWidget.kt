@@ -1,10 +1,10 @@
 package com.qdroid.anime.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,7 +31,11 @@ import com.qdroid.anime.ui.utils.ScoreComposable
 import com.qdroid.anime.ui.utils.titleTextStyle
 
 @Composable
-fun TrendingWidget(state: TrendingNowUiState, onLoadMore: () -> Unit) {
+fun TrendingWidget(
+    state: TrendingNowUiState,
+    onLoadMore: () -> Unit,
+    onNavigateToDetails: (Int) -> Unit
+) {
     val listState = rememberLazyListState()
 
     listState.OnReachedEnd(buffer = 3) {
@@ -51,7 +55,10 @@ fun TrendingWidget(state: TrendingNowUiState, onLoadMore: () -> Unit) {
         items(
             count = state.trendingMovies.size,
             key = { state.trendingMovies[it].id }) {
-            WidgetAnimeMovieItem(state.trendingMovies[it])
+            WidgetAnimeMovieItem(
+                animeMovie = state.trendingMovies[it],
+                onNavigateToDetails = onNavigateToDetails
+            )
         }
 
         if (state.isLoading && state.trendingMovies.isNotEmpty()) {
@@ -68,9 +75,14 @@ fun TrendingWidget(state: TrendingNowUiState, onLoadMore: () -> Unit) {
 }
 
 @Composable
-private fun WidgetAnimeMovieItem(animeMovie: AnimeMovie) {
+private fun WidgetAnimeMovieItem(
+    animeMovie: AnimeMovie,
+    onNavigateToDetails: (Int) -> Unit = {}
+) {
     Column(
-        Modifier.width(dimensionResource(R.dimen.cover_image_width)),
+        Modifier
+            .width(dimensionResource(R.dimen.cover_image_width))
+            .clickable { onNavigateToDetails(animeMovie.id) },
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
     ) {
         AsyncImage(
