@@ -107,13 +107,13 @@ class AnimeRepositoryImpl(private val client: ApolloClient) : AnimeRepository {
     private fun AnimeDetailsQuery.Media.toAnimeMovie() =
         AnimeMovieDetails(
             title = title?.english ?: title?.romaji.orEmpty(),
-            imageUrl = trailer?.thumbnail.orEmpty(),
+            imageUrl = coverImage?.extraLarge.orEmpty(),
             score = averageScore ?: 0,
             genres = genres?.filterNotNull() ?: emptyList(),
             duration = duration ?: 0,
             id = id,
             description = description.orEmpty(),
-            trailerUrl = "https://www.youtube.com/watch?v=" + trailer?.id.orEmpty(),
+            trailerUrl = if (trailer != null) "https://www.youtube.com/watch?v=" + trailer.id else "",
             trailerThumbnail = trailer?.thumbnail.orEmpty(),
             characters = characters?.nodes?.map {
                 Character(

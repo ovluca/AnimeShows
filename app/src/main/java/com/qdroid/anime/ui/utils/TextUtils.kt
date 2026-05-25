@@ -64,3 +64,9 @@ fun timeTextStyle() = TextStyle(
     fontWeight = FontWeight.Normal,
     fontSize = 16.sp
 )
+
+@Composable
+fun mediumBoldTextStyle() = TextStyle(
+    fontWeight = FontWeight.Bold,
+    fontSize = 16.sp
+)

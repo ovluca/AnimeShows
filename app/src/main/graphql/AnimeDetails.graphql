@@ -10,6 +10,9 @@ query AnimeDetails($id:Int!){
             english
             romaji
         }
+        coverImage {
+            extraLarge
+        }
         description
         averageScore
         genres

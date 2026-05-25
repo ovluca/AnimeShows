@@ -1,6 +1,9 @@
 package com.qdroid.anime.ui.details
 
+import android.content.Intent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,18 +32,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.qdroid.anime.R
+import com.qdroid.anime.domain.model.AnimeMovieDetails
 import com.qdroid.anime.domain.model.Character
 import com.qdroid.anime.presentation.theme.dark_blue
 import com.qdroid.anime.presentation.theme.gray
@@ -49,6 +58,7 @@ import com.qdroid.anime.ui.utils.GenresComposable
 import com.qdroid.anime.ui.utils.ScoreComposable
 import com.qdroid.anime.ui.utils.descriptionHeaderTextStyle
 import com.qdroid.anime.ui.utils.descriptionTextStyle
+import com.qdroid.anime.ui.utils.mediumBoldTextStyle
 import com.qdroid.anime.ui.utils.titleHeaderTextStyle
 import org.koin.androidx.compose.koinViewModel
 
@@ -92,17 +102,48 @@ private fun ScreenContent(uiState: AnimeDetailsUiState, onNavigateBack: () -> Un
             )
         }
     ) { _ ->
+
+        val context = LocalContext.current
         Box(modifier = Modifier.fillMaxSize()) {
 
             uiState.animeMovie?.let {
-                AsyncImage(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(400.dp),
-                    model = it.imageUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop
-                )
+                        .height(dimensionResource(R.dimen.trailer_image_height))
+                ) {
+                    AsyncImage(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(dimensionResource(R.dimen.trailer_image_height))
+                            .clickable {
+                                if (it.trailerUrl.isEmpty()) return@clickable
+                                val intent = Intent(Intent.ACTION_VIEW, it.trailerUrl.toUri())
+                                context.startActivity(intent)
+                            },
+                        model = it.trailerThumbnail.ifEmpty { it.imageUrl },
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
+
+                    if (it.trailerUrl.isEmpty()) return@Box
+
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xsmall))
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.button_play),
+                            contentDescription = null
+                        )
+                        Text(
+                            text = stringResource(R.string.play_trailer),
+                            color = Color.White,
+                            style = mediumBoldTextStyle()
+                        )
+                    }
+                }
             }
 
             LazyColumn(
@@ -201,4 +242,30 @@ private fun CharactersWidgetComposable(characters: List<Character>) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AnimeDetailsPreview() {
+    ScreenContent(
+        uiState = AnimeDetailsUiState(
+            isLoading = false,
+            animeMovie = AnimeMovieDetails(
+                id = 1,
+                title = "Naruto Shippuden",
+                imageUrl = "https://example.com/image.jpg",
+                score = 82,
+                genres = listOf("Action", "Adventure", "Fantasy"),
+                duration = 24,
+                description = "Naruto Uzumaki, is a loud, hyperactive, adolescent ninja who constantly searches for approval and recognition, as well as to become Hokage, who is acknowledged as the leader and strongest of all ninja in the village.",
+                trailerUrl = "",
+                trailerThumbnail = "",
+                characters = listOf(
+                    Character("Naruto Uzumaki", ""),
+                    Character("Sasuke Uchiha", ""),
+                    Character("Sakura Haruno", "")
+                )
+            )
+        )
+    )
 }
