@@ -25,8 +25,6 @@ class AnimeDetailsViewModel(
                     }.onFailure { }
                 }
             }
-
-            AnimeDetailsIntent.NavigateBack -> TODO()
         }
     }
 }

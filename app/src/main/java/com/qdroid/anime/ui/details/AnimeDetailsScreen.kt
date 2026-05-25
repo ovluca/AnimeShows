@@ -64,7 +64,11 @@ import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun AnimeDetailsScreen(viewModel: AnimeDetailsViewModel = koinViewModel(), id: Int) {
+fun AnimeDetailsScreen(
+    viewModel: AnimeDetailsViewModel = koinViewModel(),
+    id: Int,
+    onNavigateBack: () -> Unit = {}
+) {
 
     LaunchedEffect(id) {
         viewModel.onIntent(AnimeDetailsIntent.LoadDetails(id))
@@ -74,7 +78,8 @@ fun AnimeDetailsScreen(viewModel: AnimeDetailsViewModel = koinViewModel(), id: I
 
     ScreenContent(
         uiState = uiState,
-        onNavigateBack = { viewModel.onIntent(AnimeDetailsIntent.NavigateBack) })
+        onNavigateBack = onNavigateBack
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
