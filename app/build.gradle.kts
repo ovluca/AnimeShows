@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.squareup.okhttp3.logging)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
+    implementation(libs.compose.material.icons)
 
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)

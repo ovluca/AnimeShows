@@ -1,10 +1,13 @@
 package com.qdroid.anime.data.repository
 
 import com.apollographql.apollo.ApolloClient
+import com.qdroid.anime.AnimeDetailsQuery
 import com.qdroid.anime.PopularNowQuery
 import com.qdroid.anime.TrendingNowQuery
 import com.qdroid.anime.domain.model.AnimeMovie
+import com.qdroid.anime.domain.model.AnimeMovieDetails
 import com.qdroid.anime.domain.model.AnimeRequestType
+import com.qdroid.anime.domain.model.Character
 import com.qdroid.anime.domain.model.PaginatedMovies
 import com.qdroid.anime.domain.repository.AnimeRepository
 
@@ -62,6 +65,27 @@ class AnimeRepositoryImpl(private val client: ApolloClient) : AnimeRepository {
         return Result.success(animeMovies)
     }
 
+    override suspend fun getAnimeDetails(id: Int): Result<AnimeMovieDetails> {
+        val response = try {
+            client.query(AnimeDetailsQuery(id)).execute()
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+
+        response.exception?.let { return Result.failure(it) }
+
+        val errors = response.errors
+        if (errors?.isNotEmpty() == true) {
+            return Result.failure(Exception(errors.joinToString(separator = "\n") { it.message }))
+        }
+
+        val data = response.data ?: return Result.failure(Exception("No data received from API"))
+        val animeDetails = data.Media?.toAnimeMovie()
+            ?: return Result.failure(Exception("No data received from API"))
+
+        return Result.success(animeDetails)
+    }
+
     private fun TrendingNowQuery.Medium.toAnimeMovie() = AnimeMovie(
         title = title?.english ?: title?.romaji.orEmpty(),
         imageUrl = coverImage?.large.orEmpty(),
@@ -79,4 +103,22 @@ class AnimeRepositoryImpl(private val client: ApolloClient) : AnimeRepository {
         duration = duration ?: 0,
         id = id
     )
+
+    private fun AnimeDetailsQuery.Media.toAnimeMovie() =
+        AnimeMovieDetails(
+            title = title?.english ?: title?.romaji.orEmpty(),
+            imageUrl = trailer?.thumbnail.orEmpty(),
+            score = averageScore ?: 0,
+            genres = genres?.filterNotNull() ?: emptyList(),
+            duration = duration ?: 0,
+            id = id,
+            description = description.orEmpty(),
+            trailerUrl = "https://www.youtube.com/watch?v=" + trailer?.id.orEmpty(),
+            trailerThumbnail = trailer?.thumbnail.orEmpty(),
+            characters = characters?.nodes?.map {
+                Character(
+                    name = it?.name?.full.orEmpty(), imageUrl = it?.image?.medium.orEmpty()
+                )
+            } ?: emptyList())
+
 }

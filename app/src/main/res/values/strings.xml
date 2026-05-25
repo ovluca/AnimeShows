@@ -3,4 +3,6 @@
     <string name="trending_now">Trending Now</string>
     <string name="popular_this_season">Popular this season</string>
     <string name="see_more">See More</string>
+    <string name="characters">Characters</string>
+    <string name="description">Description</string>
 </resources>

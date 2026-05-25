@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -22,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.qdroid.anime.R
 import com.qdroid.anime.domain.model.AnimeMovie
@@ -42,7 +44,13 @@ fun TrendingWidget(
         onLoadMore()
     }
 
-    CategoryHeader(stringResource = R.string.trending_now)
+    CategoryHeader(
+        stringResource = R.string.trending_now,
+        modifier = Modifier.padding(
+            horizontal = dimensionResource(R.dimen.padding_medium),
+            vertical = 1.dp
+        )
+    )
     if (state.isLoading && state.trendingMovies.isEmpty()) {
         LinearProgressIndicator(Modifier.fillMaxWidth())
     }

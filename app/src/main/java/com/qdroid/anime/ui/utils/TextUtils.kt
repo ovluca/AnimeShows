@@ -12,6 +12,24 @@ fun titleTextStyle() = TextStyle(
 )
 
 @Composable
+fun descriptionTextStyle() = TextStyle(
+    fontWeight = FontWeight.Normal,
+    fontSize = 16.sp
+)
+
+@Composable
+fun titleHeaderTextStyle() = TextStyle(
+    fontWeight = FontWeight.Bold,
+    fontSize = 27.sp
+)
+
+@Composable
+fun descriptionHeaderTextStyle() = TextStyle(
+    fontWeight = FontWeight.Black,
+    fontSize = 27.sp
+)
+
+@Composable
 fun scoreTextStyle() = TextStyle(
     fontWeight = FontWeight.Normal,
     fontSize = 16.sp

@@ -1,0 +1,28 @@
+query AnimeDetails($id:Int!){
+    Media(id: $id){
+        id
+        trailer {
+            id
+            site
+            thumbnail
+        }
+        title {
+            english
+            romaji
+        }
+        description
+        averageScore
+        genres
+        duration
+        characters{
+            nodes {
+                name {
+                    full
+                }
+                image {
+                    medium
+                }
+            }
+        }
+    }
+}

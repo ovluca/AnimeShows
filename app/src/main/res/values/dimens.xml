@@ -4,6 +4,8 @@
     <dimen name="cover_image_height">284dp</dimen>
     <dimen name="cover_image_width_small">113dp</dimen>
     <dimen name="cover_image_height_small">170dp</dimen>
+    <dimen name="cover_image_width_xsmall">96dp</dimen>
+    <dimen name="cover_image_height_xsmall">96dp</dimen>
     <dimen name="corner_radius_medium">16dp</dimen>
     <dimen name="corner_radius_small">10dp</dimen>
     <dimen name="padding_medium">21dp</dimen>
