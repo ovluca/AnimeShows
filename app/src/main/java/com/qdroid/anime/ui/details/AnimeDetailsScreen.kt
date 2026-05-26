@@ -26,6 +26,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,7 +50,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import coil3.compose.AsyncImage
 import com.qdroid.anime.R
 import com.qdroid.anime.domain.model.AnimeMovieDetails
@@ -66,6 +72,7 @@ import com.qdroid.anime.ui.utils.titleHeaderTextStyle
 import org.koin.androidx.compose.koinViewModel
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeDetailsScreen(
     viewModel: AnimeDetailsViewModel = koinViewModel(),
@@ -79,15 +86,27 @@ fun AnimeDetailsScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    ScreenContent(
-        uiState = uiState,
-        onNavigateBack = onNavigateBack
-    )
-}
+    val snackbarHostState = remember { SnackbarHostState() }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ScreenContent(uiState: AnimeDetailsUiState, onNavigateBack: () -> Unit = {}) {
+    LaunchedEffect(viewModel.eventsFlow, lifecycleOwner) {
+        viewModel.eventsFlow
+            .flowWithLifecycle(
+                lifecycle = lifecycleOwner.lifecycle,
+                minActiveState = Lifecycle.State.STARTED
+            )
+            .collect { event ->
+                when (event) {
+                    is AnimeDetailsEvents.OnError -> {
+                        snackbarHostState.showSnackbar(
+                            message = event.errorMsg,
+                            duration = SnackbarDuration.Long
+                        )
+                    }
+                }
+            }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -114,115 +133,132 @@ private fun ScreenContent(uiState: AnimeDetailsUiState, onNavigateBack: () -> Un
                     actionIconContentColor = Color.White
                 )
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { _ ->
+        ScreenContent(
+            uiState = uiState,
+            onNavigateBack = onNavigateBack
+        )
+    }
+}
 
-        val context = LocalContext.current
-        Box(modifier = Modifier.fillMaxSize()) {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ScreenContent(
+    uiState: AnimeDetailsUiState,
+    onNavigateBack: () -> Unit = {}
+) {
 
-            uiState.animeMovie?.let {
-                Box(
+
+    val context = LocalContext.current
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        uiState.animeMovie?.let {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dimensionResource(R.dimen.trailer_image_height))
+            ) {
+                AsyncImage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(dimensionResource(R.dimen.trailer_image_height))
+                        .clickable {
+                            if (it.trailerUrl.isEmpty()) return@clickable
+                            val intent = Intent(Intent.ACTION_VIEW, it.trailerUrl.toUri())
+                            context.startActivity(intent)
+                        },
+                    model = it.trailerThumbnail.ifEmpty { it.imageUrl },
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop
+                )
+
+                if (it.trailerUrl.isEmpty()) return@Box
+
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xsmall))
                 ) {
-                    AsyncImage(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(dimensionResource(R.dimen.trailer_image_height))
-                            .clickable {
-                                if (it.trailerUrl.isEmpty()) return@clickable
-                                val intent = Intent(Intent.ACTION_VIEW, it.trailerUrl.toUri())
-                                context.startActivity(intent)
-                            },
-                        model = it.trailerThumbnail.ifEmpty { it.imageUrl },
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop
+                    Image(
+                        painter = painterResource(R.drawable.button_play),
+                        contentDescription = null
                     )
+                    Text(
+                        text = stringResource(R.string.play_trailer),
+                        color = Color.White,
+                        style = mediumBoldTextStyle()
+                    )
+                }
+            }
+        }
 
-                    if (it.trailerUrl.isEmpty()) return@Box
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            return@Box
+        }
 
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xsmall))
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.button_play),
-                            contentDescription = null
-                        )
-                        Text(
-                            text = stringResource(R.string.play_trailer),
-                            color = Color.White,
-                            style = mediumBoldTextStyle()
+        LazyColumn(
+            modifier = Modifier
+                .padding(top = 350.dp)
+                .clip(
+                    RoundedCornerShape(
+                        topStart = dimensionResource(R.dimen.corner_radius_medium),
+                        topEnd = dimensionResource(R.dimen.corner_radius_medium)
+                    )
+                )
+                .background(Color.White),
+            contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+        ) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = uiState.animeMovie?.title ?: "", style = titleHeaderTextStyle())
+                    IconButton(onClick = {}) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_bookmark),
+                            contentDescription = null,
+                            tint = gray
                         )
                     }
+                }
+                ScoreComposable(uiState.animeMovie?.score ?: 0)
+            }
+
+            item { GenresComposable(uiState.animeMovie?.genres ?: emptyList()) }
+
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xxsmall))) {
+                    Text(
+                        text = stringResource(R.string.length),
+                        style = mediumNormalTextStyle(),
+                        color = gray
+                    )
+                    Text(
+                        text = "${uiState.animeMovie?.duration}m",
+                        style = mediumSemiBoldTextStyle(),
+                        color = Color.Black
+                    )
                 }
             }
 
-            LazyColumn(
-                modifier = Modifier
-                    .padding(top = 350.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = dimensionResource(R.dimen.corner_radius_medium),
-                            topEnd = dimensionResource(R.dimen.corner_radius_medium)
-                        )
-                    )
-                    .background(Color.White),
-                contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
-            ) {
-                item {
-                    if (uiState.isLoading) {
-                        CircularProgressIndicator()
-                    }
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = uiState.animeMovie?.title ?: "", style = titleHeaderTextStyle())
-                        IconButton(onClick = {}) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_bookmark),
-                                contentDescription = null,
-                                tint = gray
-                            )
-                        }
-                    }
-                }
-
-                item { ScoreComposable(uiState.animeMovie?.score ?: 0) }
-
-                item { GenresComposable(uiState.animeMovie?.genres ?: emptyList()) }
-
-                item {
-                    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xxsmall))) {
-                        Text(
-                            text = stringResource(R.string.length),
-                            style = mediumNormalTextStyle(),
-                            color = gray
-                        )
-                        Text(
-                            text = "${uiState.animeMovie?.duration}m",
-                            style = mediumSemiBoldTextStyle(),
-                            color = Color.Black
-                        )
-                    }
-                }
-
-                item {
-                    DescriptionComposable(uiState.animeMovie?.description ?: "")
-                }
-
-                item {
-                    CharactersWidgetComposable(uiState.animeMovie?.characters ?: emptyList())
-                }
-
+            item {
+                DescriptionComposable(uiState.animeMovie?.description ?: "")
             }
+
+            item {
+                CharactersWidgetComposable(uiState.animeMovie?.characters ?: emptyList())
+            }
+
         }
     }
 }
@@ -307,6 +343,6 @@ fun AnimeDetailsPreview() {
                     Character("Sakura Haruno", "")
                 )
             )
-        )
+        ),
     )
 }

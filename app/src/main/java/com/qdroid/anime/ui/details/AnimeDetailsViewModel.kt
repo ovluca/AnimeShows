@@ -3,7 +3,9 @@ package com.qdroid.anime.ui.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qdroid.anime.domain.usecase.GetAnimeMovieDetailsUseCase
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -15,6 +17,9 @@ class AnimeDetailsViewModel(
     private val _uiState = MutableStateFlow(AnimeDetailsUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _events = MutableSharedFlow<AnimeDetailsEvents>(extraBufferCapacity = 1)
+    val eventsFlow = _events.asSharedFlow()
+
     fun onIntent(intent: AnimeDetailsIntent) {
         when (intent) {
             is AnimeDetailsIntent.LoadDetails -> {
@@ -22,7 +27,9 @@ class AnimeDetailsViewModel(
                 viewModelScope.launch {
                     getAnimeMovieDetailsUseCase(intent.id).onSuccess { animeMovie ->
                         _uiState.update { it.copy(isLoading = false, animeMovie = animeMovie) }
-                    }.onFailure { }
+                    }.onFailure {
+                        _events.emit(AnimeDetailsEvents.OnError(it.message ?: "Unknown error"))
+                    }
                 }
             }
         }
