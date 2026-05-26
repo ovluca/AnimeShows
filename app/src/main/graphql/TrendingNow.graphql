@@ -1,0 +1,22 @@
+query TrendingNow(
+    $page: Int!,
+    $perPage: Int!){
+    Page(page: $page, perPage: $perPage){
+        pageInfo {
+            currentPage,
+            hasNextPage
+            total
+        }
+        media(sort: TRENDING_DESC){
+            id
+            coverImage {
+                large
+            }
+            title {
+                english
+                romaji
+            }
+            averageScore
+        }
+    }
+}

@@ -1,0 +1,24 @@
+query PopularNow(
+    $page: Int!,
+    $perPage: Int!){
+    Page(page: $page, perPage: $perPage){
+        pageInfo {
+            currentPage,
+            hasNextPage
+            total
+        }
+        media(season: SPRING, seasonYear: 2026){
+            id
+            coverImage {
+                large
+            }
+            title {
+                english
+                romaji
+            }
+            averageScore
+            genres
+            duration
+        }
+    }
+}

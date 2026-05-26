@@ -1,0 +1,12 @@
+package com.qdroid.anime.di
+
+import com.qdroid.anime.domain.usecase.GetAnimeMovieDetailsUseCase
+import com.qdroid.anime.domain.usecase.PopularNowUseCase
+import com.qdroid.anime.domain.usecase.TrendingNowUseCase
+import org.koin.dsl.module
+
+fun useCaseModule() = module {
+    single { TrendingNowUseCase(repository = get(), dispatcherProvider = get()) }
+    single { PopularNowUseCase(repository = get(), dispatcherProvider = get()) }
+    single { GetAnimeMovieDetailsUseCase(repository = get(), dispatcherProvider = get()) }
+}
