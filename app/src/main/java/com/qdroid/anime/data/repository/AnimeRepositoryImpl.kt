@@ -12,6 +12,7 @@ import com.qdroid.anime.domain.model.PaginatedMovies
 import com.qdroid.anime.domain.repository.AnimeRepository
 
 private const val PER_PAGE = 20
+private const val NO_DATA = "Error fetching data"
 
 class AnimeRepositoryImpl(private val client: ApolloClient) : AnimeRepository {
 
@@ -79,9 +80,9 @@ class AnimeRepositoryImpl(private val client: ApolloClient) : AnimeRepository {
             return Result.failure(Exception(errors.joinToString(separator = "\n") { it.message }))
         }
 
-        val data = response.data ?: return Result.failure(Exception("No data received from API"))
+        val data = response.data ?: return Result.failure(Exception(NO_DATA))
         val animeDetails = data.Media?.toAnimeMovie()
-            ?: return Result.failure(Exception("No data received from API"))
+            ?: return Result.failure(Exception(NO_DATA))
 
         return Result.success(animeDetails)
     }
