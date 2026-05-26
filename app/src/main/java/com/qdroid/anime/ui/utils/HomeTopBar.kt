@@ -40,7 +40,7 @@ fun HomeTopBar() {
                 ) {
                     Icon(
                         modifier = Modifier.size(dimensionResource(R.dimen.icon_size_big)),
-                        painter = painterResource(R.drawable.ic_menu),
+                        painter = painterResource(R.drawable.ic_home_menu),
                         contentDescription = "",
                         tint = Color.Unspecified
                     )
