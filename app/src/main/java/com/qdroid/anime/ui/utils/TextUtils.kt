@@ -70,3 +70,15 @@ fun mediumBoldTextStyle() = TextStyle(
     fontWeight = FontWeight.Bold,
     fontSize = 16.sp
 )
+
+@Composable
+fun mediumNormalTextStyle() = TextStyle(
+    fontWeight = FontWeight.Normal,
+    fontSize = 16.sp
+)
+
+@Composable
+fun mediumSemiBoldTextStyle() = TextStyle(
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 16.sp
+)

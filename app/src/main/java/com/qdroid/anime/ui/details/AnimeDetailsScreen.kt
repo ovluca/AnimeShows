@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,6 +60,8 @@ import com.qdroid.anime.ui.utils.ScoreComposable
 import com.qdroid.anime.ui.utils.descriptionHeaderTextStyle
 import com.qdroid.anime.ui.utils.descriptionTextStyle
 import com.qdroid.anime.ui.utils.mediumBoldTextStyle
+import com.qdroid.anime.ui.utils.mediumNormalTextStyle
+import com.qdroid.anime.ui.utils.mediumSemiBoldTextStyle
 import com.qdroid.anime.ui.utils.titleHeaderTextStyle
 import org.koin.androidx.compose.koinViewModel
 
@@ -98,6 +101,12 @@ private fun ScreenContent(uiState: AnimeDetailsUiState, onNavigateBack: () -> Un
                     }
                 },
                 actions = {
+                    IconButton(onClick = { }) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_menu),
+                            contentDescription = null
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
@@ -171,12 +180,39 @@ private fun ScreenContent(uiState: AnimeDetailsUiState, onNavigateBack: () -> Un
                 }
 
                 item {
-                    Text(text = uiState.animeMovie?.title ?: "", style = titleHeaderTextStyle())
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = uiState.animeMovie?.title ?: "", style = titleHeaderTextStyle())
+                        IconButton(onClick = {}) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_bookmark),
+                                contentDescription = null,
+                                tint = gray
+                            )
+                        }
+                    }
                 }
 
                 item { ScoreComposable(uiState.animeMovie?.score ?: 0) }
 
                 item { GenresComposable(uiState.animeMovie?.genres ?: emptyList()) }
+
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xxsmall))) {
+                        Text(
+                            text = stringResource(R.string.length),
+                            style = mediumNormalTextStyle(),
+                            color = gray
+                        )
+                        Text(
+                            text = "${uiState.animeMovie?.duration}m",
+                            style = mediumSemiBoldTextStyle(),
+                            color = Color.Black
+                        )
+                    }
+                }
 
                 item {
                     DescriptionComposable(uiState.animeMovie?.description ?: "")

@@ -6,4 +6,5 @@
     <string name="characters">Characters</string>
     <string name="description">Description</string>
     <string name="play_trailer">Play Trailer</string>
+    <string name="length">Length</string>
 </resources>
